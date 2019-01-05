@@ -1,7 +1,9 @@
 # NeuralNetworks
 
-Una neurona: prueba_ann.py y prueba_ann_v3.cpp
+Modelos en Python y C++ para una sola neurona:
+  - prueba_ann.py
+  - prueba_ann_v3.cpp
 
-Una red neuronal completa: ann_v2.cpp
-
-PD: ann_v2.cpp le tiene miedo a los números mayores de dos...
+Modelos en Python y C++ para una red neuronal:
+  - ann.py
+  - ann_v3.cpp (tener cuidado con los valores de los sets de entrada y salida)
