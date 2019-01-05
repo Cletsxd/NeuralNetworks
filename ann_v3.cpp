@@ -1,12 +1,3 @@
-// PRUEBA 3 DE RED NEURONAL
-// Checar backpropagation:
-//	- Entradas por capa
-//	- Salidas por capa anterior
-//	- Suma con bias *
-//	- Mean de bias
-//	- Transposición de las entradas por capa
-//	- Actualización de pesos y bias
-
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
