@@ -6,6 +6,14 @@
 
 using namespace std;
 
+// CLASE DE UNA CAPA DE LA RED
+// Una capa de la red neuronal consta de:
+//	- Neuronas: las neuronas actuales de la capa y de la capa anterior hacen una matriz
+//	- Pesos: es una matriz. Las dimensiones de esta son:
+//		> para las filas, el número de neuronas de la capa anterior; para las columnas, el número de neuronas actual
+//	- Bias: el umbral de activación. También es una matriz. Las dimensiones de esta son:
+//		> para las filas, 1; para las columnas, el número de neuronas de la actual capa
+//	- Deltas: es una matriz. Resultado del cálculo de las derivadas de la función de activación respecto de las salidas de cada capa
 class NeuralLayer{
 	private:
 		// Matriz de pesos
@@ -49,37 +57,123 @@ class NeuralLayer{
 
 // DELCARACIÓN DE LA ESTRUCTURA DE DATOS CORRESPONDIENTE A LA SALIDA DE CADA CAPA
 struct Output{
-		float* mat;
-		int f;
-		int c;
+	float* mat;
+	int f;
+	int c;
 };
 
 // DECLARACIÓN DE LAS FUNCIONES GLOBALES
+
+// Creación de una capa de red
+// Parámetros: neuronas de la capa anterior (num_nant), neuronas de la capa actual (num_neur)
 NeuralLayer createNeuralLayer(int num_nant, int num_neur);
+
+// Crea una matriz con números aleatorios
+// Parámetros: filas y columnas de la matriz
 float* createMatrizRandom(int filas, int columnas);
+
+// Muestra en pantalla una matriz
+// Parámetros: la matriz, y sus filas y columnas
 void mostrarMatriz(float ar[], int filas, int columnas);
+
+// Multiplicación matricial
+// Multiplicación de dos matrices con dimensiones aleatorias, ara[] y arb[].
+// Las dimensiones de la resultante son: filas (tomadas de las filas de ara[]) y columnas (tomadas de las columnas de arb[])
+// Si las columnas de ara[] son diferentes a las filas de arb[], el cálculo no está permitido, esto quiere decir, que deben ser iguales 
+//		(columnas de ara[] == filas de arb[])
+// Parámetros: primera matriz (ara[]), filas de ara[], columnas de ara[], segunda matriz (arb[]), columnas de arb[], matriz resultante (arr[])
 void dot(float ara[], int filas_a, int columnas_a, float arb[], int columnas_b, float arr[]);
+
+// Suma las Bias con la matriz ponderada con los Pesos
+// Parámetros: la matriz ponderada, sus filas y columnas, la matriz de bias y una matriz vacía para almacenar el resultado
 void sumaBias(float mat_ponderada[], int filas_mp, int columnas_mp, float mat_bias[], float res[]);
+
+// Pensar
+// Función que realiza el algoritmo de FEED-FORWARD de una red neuronal. Las fases de este algoritmo son:
+//	- Ponderación de pesos y entradas por capa
+//	- Sumatoria por neurona y suma con bias
+//	- Función de activación
+// Delvuelve una matriz con los resultados de salida que, al inicio de entrenamiento de la red, serán aleatorios y con
+// mucho margen de error
+// Parámetros: la matriz de entrada (set de entrada), sus filas y columnas, la matriz resultante, la red neuronal y cantidad de capas
 void think1(float entrada[], int filas_entrada, int columnas_entrada, float res[], NeuralLayer neural_net[], int n_layers);
+
+// Entrenar
+// Función que realiza las siguientes funciones:
+//	- Forward pass: lo mismo que think1(), pero con la recuperación de las resultantes de salida por capa, incluyendo la matriz de entrada
+//	- Backpropagation: el algoritmo de retropropagación que incluye el algoritmo del Descenso del Gradiente para actualizar pesos y bias respecto del error
+//		resultante de la capa de salida de la red
+// Este último algoritmo se explica de la siguiente forma:
+//	- Para actualizar los pesos y bias de la última capa:
+//		> Necesario hacer el cálculo del error con la derivada de la función de costo
+//		> Calcular las deltas de la capa: pasando por la derivada de la función de activación el resultado del cálculo del error
+//		> Actualización de pesos y bias: al momento de actualizar pesos y bias, se debe tomar en cuenta las deltas de la capa de salida
+//			y la salida de la capa anterior
+//	- Para actualizar los pesos y bias de las capas anteriores
+//		> Necesario calcular las deltas de la capa: tomando como referencia las deltas de la capa siguiente y la salida de la capa actual
+//			calculando la derivada de la función de activación con respecto de la salida resultante de la capa actual
+//		> Actulizaciób de pesos y bias: tomar las deltas de la capa ya generadas y los pesos y bias de la misma capa
+// El proceso del backpropagation se realiza hasta el final:
+//	- Cuando el algoritmo de retropropagación se encuentra al inicio de la red, la capa de entrada tiene como resultante la matriz de entrada, la cual será
+//		ocupada para actualizar los pesos de la capa siguiente
 void train1(float entrada[], int filas_entrada, int columnas_entrada, float salida[], float filas_salida, float columnas_salida, NeuralLayer neural_net[], int n_layers, float learning_rate);
+
+// Función de activación: TANGENTE HIPERBÓLICA
+// Parámetros: la matriz a activar, sus filas y columnas, y la matriz resultante
 void tang_hiper(float ar[], int filas_a, int columnas_a, float arr[]);
+
+// Derivada de la función de activación: TANGETE HIPERBÓLICA
+// Parámetros: la matriz a derivar, sus filas y columnas, y la matriz resultante
 void derivada_tang_hiper(float ar[], int filas_a, int columnas_a, float arr[]);
+
+// Función de activación: SIGMOIDAL
+// Parámetros: la matriz a activar, sus filas y columnas, y la matriz resultante
 void sigmoidal(float ar[], int filas_a, int columnas_a, float arr[]);
+
+// Función de activación: TANGENTE HIPERBÓLICA
+// Parámetros: la matriz a derivar, sus filas y columnas, y la matriz resultante
 void derivada_sigmoidal(float ar[], int filas, int columnas, float arr[]);
+
+// Llamada a la función de activación
+// Parámetros: matriz ponderada, sus filas y columnas, y la matriz resultante
 void activationFunction(float weigthed_mat[], int filas, int columnas, float res[]);
+
+// Llamada a la derivada de la función de activación
+// Parámetros: matriz activada, sus filas y columnas, y la matriz resultante
 void derivActivationFunction(float activated_mat[], int filas, int columnas, float res[]);
+
+// Derivada de la función de costo: ERROR CUADRÁTICO MEDIO
+// Parámetros: matriz de la salida de la red, sus filas y columnas, la matriz de salidas esperadas y la matriz resultante
 void derivada_e2medio(float aa[], int filas, int columnas, float ab[], float arr[]);
+
+// Multiplicación no matricial
+// Parámetros: matrizA, sus filas y columnas, y matrizB
+// Devuelve un apuntador a la matriz resultante
 float* multiplicar(float aa[], int filas, int columnas, float ab[]);
+
+// Transposición de una matriz
+// Parámetros: la matriz a transponer, filas y columnas de la matriz a transponer, resultante de la matriz transpuesta
 void transponerMatriz(float ar[], int filas, int columnas, float res[]);
+
+// Promedio por columnas de una matriz
+// Parámetros: una matriz, sus filas y columnas, y la matriz resultante
 void mean(float aa[], int filas, int columnas, float arr[]);
+
+// Multiplicación de matriz por número flotante
+// Parámetros: la matriz a multiplicar, sus filas y columnas, la matriz resultante y el número flotante
 void multmatfloat(float aa[], int filas, int columnas, float res[], float learning_rate);
 
 int main(){
-	int n_layers = 3;
+
+	// --- COMIENZA LA PARTE DONDE LOS DATOS PUEDEN SER MODIFICADOS A SU GUSTO --- //
+	
+	// DATOS SOBRE LAS MATRICES DE ENTRADA Y SALIDA
 	int filas_X = 4;
+	// columnas_X: además de ser el número de columnas de la matriz de entrada es el número de neuronas de la capa de entrada
 	int columnas_X = 2;
-	int filas_Y = 1;
-	int columnas_Y = 4;
+	int filas_Y = 4;
+	// columnas_X: además de ser el número de columnas de la matriz de salida es el número de neuronas de la capa de salida
+	int columnas_Y = 1;
 
 	// Capa de entrada
 	float X[filas_X*columnas_X] = {0,0, 0,1, 1,0, 1,1};
@@ -87,12 +181,28 @@ int main(){
 	float Y[filas_Y*columnas_Y] = {0,1,1,0};
 
 	// Capa de entrada
-	//float X[filas_X*columnas_X] = {1, 0.25, -0.5};
+	//float X[filas_X*columnas_X] = {1,.25,-0.5};
 	// Resultados esperados de salida
 	//float Y[filas_Y*columnas_Y] = {1,-1,0};
 
+	// DATOS SOBRE LA TOPOLOGÍA DE LA RED NEURONAL
+	
+	// Número de capas
+	int n_layers = 3;
+
+	// Creación de la red neuronal
 	NeuralLayer neural_net[n_layers-1];
-	int nn_topology[n_layers] = {2, 3, 1};
+
+	// Topología de red
+	// Modificar de acuerdo a la cantidad de capas
+	// Cada posición representa una capa, y cada valor representa el número de neuronas de la capa
+	int nn_topology[n_layers] = {columnas_X, 3, columnas_Y};
+
+	// DATOS SOBRE EL ENTRENAMIENTO
+	float learning_rate = 0.2;
+	long int iteraciones = 100000;
+
+	// --- FINALIZA LA PARTE DONDE LOS DATOS PUEDEN SER MODIFICADOS A SU GUSTO --- //
 
 	for(int layer = 0; layer < n_layers-1; layer++){
 		neural_net[layer] = createNeuralLayer(nn_topology[layer], nn_topology[layer+1]);
@@ -108,23 +218,23 @@ int main(){
 	}
 
 	// Procedimiento de PENSAR (think1)
-	float res1[columnas_Y*filas_Y];
+	float res1[filas_Y*columnas_Y];
 	think1(X, filas_X, columnas_X, res1, neural_net, n_layers-1);
 
 	cout<<"\n > Resultante prueba think1:"<<endl;
-	mostrarMatriz(res1, columnas_Y, filas_Y);
+	mostrarMatriz(res1, filas_Y, columnas_Y);
 
 	// TRAINING
 	cout<<"\n > TRAINING";
-	for(int t=0;t<100000;t++){
+	for(int t=0;t<iteraciones;t++){
 		if(t%1000==0){
 			cout<<" .";
 		}
-		train1(X, filas_X, columnas_X, Y, filas_Y, columnas_Y, neural_net, n_layers-1, 0.2);
+		train1(X, filas_X, columnas_X, Y, filas_Y, columnas_Y, neural_net, n_layers-1, learning_rate);
 	}
 	cout<<"\n > END TRAINING";
 
-	cout<<"\nSynaptic weights after training"<<endl;
+	cout<<"\n\nSynaptic weights after training"<<endl;
 	for(int layer = 0; layer < n_layers-1; layer++){
 		cout<<"\n >> Layer "<<layer<<endl;
 		cout<<"\n Weights"<<endl;
@@ -134,11 +244,11 @@ int main(){
 	}
 
 	// Procedimiento de PENSAR (think1)
-	float res2[columnas_Y*filas_Y];
+	float res2[filas_Y*columnas_Y];
 	think1(X, filas_X, columnas_X, res2, neural_net, n_layers-1);
 
 	cout<<"\n > Resultante prueba think1:"<<endl;
-	mostrarMatriz(res2, columnas_Y, filas_Y);
+	mostrarMatriz(res2, filas_Y, columnas_Y);
 }
 
 void NeuralLayer::setWeights(float* weights){
@@ -394,6 +504,7 @@ void train1(float entrada[], int filas_entrada, int columnas_entrada, float sali
 	output[0].f = filas_entrada;
 	output[0].c = columnas_entrada;
 
+	// FEED-FORWARD
 	for(int layer_o=1;layer_o<n_layers+1;layer_o++){
 		float res_temp[output[layer_o-1].f * neural_net[layer_o-1].getNum_Neur()];
 		dot(output[layer_o-1].mat, output[layer_o-1].f, output[layer_o-1].c, neural_net[layer_o-1].getWeights(), neural_net[layer_o-1].getNum_Neur(), res_temp);
@@ -407,6 +518,7 @@ void train1(float entrada[], int filas_entrada, int columnas_entrada, float sali
 		output[layer_o].f=output[layer_o-1].f;
 	}
 
+	// BACKPROPAGATION
 	int layer_o = n_layers;
 
 	for(int layer = n_layers-1; layer>=0; layer--){
